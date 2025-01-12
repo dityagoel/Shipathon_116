@@ -149,16 +149,59 @@ def main():
     if option == "Record Audio":
         # Call the audio recorder
         audio_data = st_audiorec()
+        st.session_state.audio_file=audio_data
 
         # Display audio data
         if audio_data is not None:
             st.audio(audio_data, format="audio/wav")
 
-        # Display audio data
-    if audio_data is not None:
-        with open("output.wav", "wb") as f:
-            f.write(audio_data)
-        st.success("Audio saved as output.wav")
+        # Transcription and Notes Generation
+        if 'audio_file' in st.session_state and st.button("Generate Notes"):
+            try:
+                with st.spinner("Transcribing audio..."):
+                    text = transcribe_text(st.session_state['audio_file'], client)
+                    st.text_area("Transcribed Text", text, height=200)
+                
+                with st.spinner("Generating notes..."):
+                    chunks = [text]  # Simplified for this example
+                    notes_sections = []
+                    
+                    for chunk in chunks:
+                        notes = convert_chunk_to_notes(client, chunk)
+                        if notes:
+                            notes_sections.append(notes)
+                    
+                    final_notes = "\n\n".join(notes_sections)
+                    st.markdown("### Generated Notes")
+                    st.markdown(final_notes)
+                    
+                    # Create download buttons
+                    st.download_button(
+                        label="Download Notes (Markdown)",
+                        data=final_notes,
+                        file_name="lecture_notes.md",
+                        mime="text/markdown"
+                    )
+                    
+                    # Convert to PDF and offer download
+                    pdf_buffer = convert_md_to_pdf(final_notes)
+                    st.download_button(
+                        label="Download Notes (PDF)",
+                        data=pdf_buffer,
+                        file_name="lecture_notes.pdf",
+                        mime="application/pdf"
+                    )
+                    
+            except Exception as e:
+                st.error(f"Error processing audio: {str(e)}")
+            
+            finally:
+                # Cleanup temporary files
+                if 'audio_file' in st.session_state:
+                    try:
+                        os.unlink(st.session_state['audio_file'])
+                    except:
+                        pass
 
     else:  # Upload Audio File
         uploaded_file = st.file_uploader("Choose an audio file", type=['wav'])
