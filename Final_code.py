@@ -12,6 +12,8 @@ from reportlab.lib.styles import getSampleStyleSheet
 from pathlib import Path
 import io
 
+os.system('pip install sounddevice --force-reinstall')
+
 def record_audio(duration, sample_rate=44100):
     """Record audio for specified duration"""
     recording = sd.rec(
