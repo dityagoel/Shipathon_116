@@ -11,8 +11,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from pathlib import Path
 import io
-from streamlit_webrtc import webrtc_streamer, AudioProcessorBase
-import wave
+from st_audiorec import st_audiorec
 
 # Global variable to store audio data
 audio_data_buffer = []
@@ -26,7 +25,7 @@ class AudioProcessor(AudioProcessorBase):
         audio_data_buffer.append(audio)  # Append to the global buffer
 
         return frame  # Return the original frame (unprocessed)
-os.system('pip install streamlit-webrtc opencv-python')
+os.system('pip install streamlit-audiorec')
 
 def get_audio_devices():
     """Get list of available audio input devices"""
@@ -181,28 +180,10 @@ def main():
     option = st.radio("Choose input method:", ["Record Audio", "Upload Audio File"])
     
     if option == "Record Audio":
-        # Start the WebRTC streamer
-        webrtc_ctx = webrtc_streamer(
-            key="audio",
-            mode="sendonly",
-            audio_processor_factory=AudioProcessor
-        )
-        
-        # Display the length of audio frames collected
-        if st.button("Stop and Save Audio"):
-            if len(audio_data_buffer) > 0:
-                # Combine all collected audio frames
-                audio_data = np.concatenate(audio_data_buffer, axis=0)
-        
-                # Save audio to a .wav file
-                output_file = "output.wav"
-                with wave.open(output_file, "wb") as wf:
-                    wf.setnchannels(1)  # Mono audio
-                    wf.setsampwidth(2)  # 16-bit audio
-                    wf.setframerate(48000)  # Assuming a sample rate of 48kHz
-                    wf.writeframes(audio_data.tobytes())
-        
-                st.success(f"Audio saved as {output_file}")
+        wav_audio_data = st_audiorec()
+
+    if wav_audio_data is not None:
+        st.audio(wav_audio_data, format='audio/wav')
     
     else:  # Upload Audio File
         uploaded_file = st.file_uploader("Choose an audio file", type=['wav'])
