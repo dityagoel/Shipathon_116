@@ -11,6 +11,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from pathlib import Path
 import io
+os.system('pip install streamlit-webrtc opencv-python')
 
 def get_audio_devices():
     """Get list of available audio input devices"""
