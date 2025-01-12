@@ -13,18 +13,7 @@ from pathlib import Path
 import io
 from st_audiorec import st_audiorec
 
-# Global variable to store audio data
-audio_data_buffer = []
 
-class AudioProcessor(AudioProcessorBase):
-    def recv_audio(self, frame):
-        global audio_data_buffer
-        
-        # Convert the audio frame to numpy array
-        audio = frame.to_ndarray()  # Raw audio data as a NumPy array
-        audio_data_buffer.append(audio)  # Append to the global buffer
-
-        return frame  # Return the original frame (unprocessed)
 os.system('pip install streamlit-audiorec')
 
 def get_audio_devices():
