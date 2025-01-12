@@ -1,12 +1,10 @@
 streamlit
 sounddevice
-scipy-io-wavfile
+scipy
 numpy
 groq
 os
 markdown
-reportlab-lib-pagesizes
-reportlab-platypus
-reportlab-lib-styles
+reportlab
 pathlib
 io
