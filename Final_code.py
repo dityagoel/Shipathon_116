@@ -1,4 +1,6 @@
 import streamlit as st
+
+os.system('pip install sounddevice --force-reinstall')
 import sounddevice as sd
 from scipy.io.wavfile import write
 import numpy as np
@@ -12,7 +14,6 @@ from reportlab.lib.styles import getSampleStyleSheet
 from pathlib import Path
 import io
 
-os.system('pip install sounddevice --force-reinstall')
 
 def record_audio(duration, sample_rate=44100):
     """Record audio for specified duration"""
