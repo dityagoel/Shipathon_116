@@ -9,6 +9,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 import io
+import wave
 from st_audiorec import st_audiorec
 
 # Ensure the necessary packages are installed
@@ -26,6 +27,14 @@ def get_audio_devices():
     except Exception as e:
         return []
 
+def convert_to_audio(byte_data):
+    # Create BytesIO object
+    wav_io = io.BytesIO(byte_data)
+    
+    # Read using scipy
+    sample_rate, audio_data = wavfile.read(wav_io)
+    
+    return audio_data
 
 def transcribe_text(file_path, client):
     """Transcribe audio file to text using Groq"""
@@ -149,7 +158,7 @@ def main():
     if option == "Record Audio":
         # Call the audio recorder
         audio_data = st_audiorec()
-        st.session_state['audio_file']=audio_data
+        st.session_state['audio_file']=convert_to_audio(audio_data)
 
         # Display audio data
         if audio_data is not None:
