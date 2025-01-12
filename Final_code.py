@@ -130,6 +130,12 @@ def main():
 
     # Sidebar for API key
     api_key = st.sidebar.text_input("Enter Groq API Key", type="password")
+    instructions=st.sidebar.write("Here’s a quick setup guide for the Groq API:")
+    instructions1=st.sidebar.write("1. Open https://groq.com")
+    instructions2=st.sidebar.write("2. On the top-right corner, click on 'DEV CONSOLE'")
+    instructions3=st.sidebar.write("3. On the sidebar, click on API keys and Create a New API Key.")
+    instructions1=st.sidebar.write("4. The secret key is your Groq API key. Copy it and paste it in the input box.")
+    
     
     if not api_key:
         st.warning("Please enter your Groq API key in the sidebar to continue.")
