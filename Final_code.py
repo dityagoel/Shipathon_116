@@ -179,8 +179,8 @@ def main():
             with open("output.wav", "wb") as f:
                 f.write(audio_data)
             st.success("Audio saved!")
-            # Transcription and Notes Generation
-        if st.session_state.audio_file and st.button("Generate Notes"):
+        # Transcription and Notes Generation
+        if 'audio_file' in st.session_state and st.button("Generate Notes"):
             try:
                 with st.spinner("Transcribing audio..."):
                     text = transcribe_text(st.session_state['audio_file'], client)
