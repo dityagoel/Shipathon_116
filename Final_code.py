@@ -149,7 +149,7 @@ def main():
     if option == "Record Audio":
         # Call the audio recorder
         audio_data = st_audiorec()
-        st.session_state.audio_file=audio_data
+        st.session_state['audio_file']=audio_data
 
         # Display audio data
         if audio_data is not None:
