@@ -1,5 +1,4 @@
 import streamlit as st
-import sounddevice as sd
 from scipy.io.wavfile import write
 import numpy as np
 from groq import Groq
@@ -27,36 +26,6 @@ def get_audio_devices():
     except Exception as e:
         return []
 
-def record_audio(duration, sample_rate=44100, device=None):
-    """Record audio for specified duration"""
-    try:
-        # Initialize audio device
-        if device is not None:
-            sd.default.device[0] = device  # Set input device
-        
-        # Test audio device before recording
-        sd.check_input_settings(
-            device=device,
-            channels=1,
-            samplerate=sample_rate
-        )
-        
-        # Record audio
-        recording = sd.rec(
-            int(duration * sample_rate),
-            samplerate=sample_rate,
-            channels=1,
-            device=device
-        )
-        sd.wait()
-        return recording, None
-    except Exception as e:
-        return None, str(e)
-
-def save_audio(recording, filename, sample_rate=44100):
-    """Save the recorded audio to a WAV file"""
-    write(filename, sample_rate, recording)
-    return filename
 
 def transcribe_text(file_path, client):
     """Transcribe audio file to text using Groq"""
