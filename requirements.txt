@@ -6,5 +6,4 @@ groq
 markdown
 reportlab
 pathlib
-streamlit-webrtc
-wave
+st_audiorec
