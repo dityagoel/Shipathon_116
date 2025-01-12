@@ -1,8 +1,8 @@
 import streamlit as st
 import os
-os.system('apt-get install -qq libportaudio2')
-os.system('pip install sounddevice --force-reinstall')
-os.system('pip install sounddevice')
+#os.system('apt-get install -qq libportaudio2')
+#os.system('pip install sounddevice --force-reinstall')
+#os.system('pip install sounddevice')
 import sounddevice as sd
 from scipy.io.wavfile import write
 import numpy as np
