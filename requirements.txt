@@ -3,7 +3,6 @@ sounddevice
 scipy
 numpy
 groq
-os
 markdown
 reportlab
 pathlib
