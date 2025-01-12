@@ -1,0 +1,12 @@
+streamlit
+sounddevice
+scipy.io.wavfile
+numpy
+groq
+os
+markdown
+reportlab.lib.pagesizes
+reportlab.platypus
+reportlab.lib.styles
+pathlib
+io
