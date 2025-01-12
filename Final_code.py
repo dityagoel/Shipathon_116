@@ -182,7 +182,7 @@ def main():
         if st.button("Generate Notes"):
             try:
                 with st.spinner("Transcribing audio..."):
-                    text = transcribe_text(st.session_state['audio_file'], client)
+                    text = transcribe_text(audio_file, client)
                     st.text_area("Transcribed Text", text, height=200)
                 
                 with st.spinner("Generating notes..."):
