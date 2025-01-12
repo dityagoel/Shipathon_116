@@ -6,5 +6,5 @@ groq
 markdown
 reportlab
 pathlib
-st-audiorec
+streamlit-audiorec
 
