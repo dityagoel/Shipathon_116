@@ -9,12 +9,11 @@ import markdown
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
-from pathlib import Path
 import io
 from st_audiorec import st_audiorec
 
-
-os.system('pip install streamlit-audiorec')
+# Ensure the necessary packages are installed
+# os.system('pip install streamlit-audiorec')
 
 def get_audio_devices():
     """Get list of available audio input devices"""
@@ -61,15 +60,18 @@ def save_audio(recording, filename, sample_rate=44100):
 
 def transcribe_text(file_path, client):
     """Transcribe audio file to text using Groq"""
-    with open(file_path, "rb") as file:
-        transcription = client.audio.transcriptions.create(
-            file=(file_path, file.read()),
-            model="whisper-large-v3-turbo",
-            response_format="json",
-            language="en",
-            temperature=0.0
-        )
-        return transcription.text
+    try:
+        with open(file_path, "rb") as file:
+            transcription = client.audio.transcriptions.create(
+                file=(file_path, file.read()),
+                model="whisper-large-v3-turbo",
+                response_format="json",
+                language="en",
+                temperature=0.0
+            )
+            return transcription.text
+    except Exception as e:
+        return f"Error transcribing audio: {str(e)}"
 
 def convert_chunk_to_notes(client, chunk):
     """Convert text chunk to structured notes"""
@@ -79,7 +81,7 @@ def convert_chunk_to_notes(client, chunk):
     - Key concepts and definitions
     - Any formulas or equations mentioned
     - Brief summaries of main points
-    - Important questions and answers in seperate lines based on the audio provided
+    - Important questions and answers in separate lines based on the audio provided
 
     Text to convert:
     {chunk}
@@ -88,22 +90,25 @@ def convert_chunk_to_notes(client, chunk):
     Do not mention unnecessary details.
     """
 
-    response = client.chat.completions.create(
-        model="mixtral-8x7b-32768",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are an expert at converting text into clear, concise lecture notes."
-            },
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-        temperature=0.3,
-        max_tokens=4000
-    )
-    return response.choices[0].message.content
+    try:
+        response = client.chat.completions.create(
+            model="mixtral-8x7b-32768",
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are an expert at converting text into clear, concise lecture notes."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.3,
+            max_tokens=4000
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Error generating notes: {str(e)}"
 
 def convert_md_to_pdf(md_text):
     """Convert markdown text to PDF"""
@@ -161,7 +166,11 @@ def main():
         st.warning("Please enter your Groq API key in the sidebar to continue.")
         return
     
-    client = Groq(api_key=api_key)
+    try:
+        client = Groq(api_key=api_key)
+    except Exception as e:
+        st.error(f"Error initializing Groq client: {str(e)}")
+        return
     
     # Main interface
     st.header("1. Record or Upload Audio")
@@ -171,7 +180,6 @@ def main():
     if option == "Record Audio":
         # Call the audio recorder
         audio_file = st_audiorec()
-
 
         # Display audio data
         if audio_file is not None:
