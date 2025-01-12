@@ -6,4 +6,4 @@ markdown
 reportlab
 pathlib
 streamlit-audiorec
-
+wave
