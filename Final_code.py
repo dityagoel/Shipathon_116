@@ -1,12 +1,9 @@
 import streamlit as st
-import os
-#os.system('apt-get install -qq libportaudio2')
-#os.system('pip install sounddevice --force-reinstall')
-#os.system('pip install sounddevice')
 import sounddevice as sd
 from scipy.io.wavfile import write
 import numpy as np
 from groq import Groq
+import os
 import tempfile
 import markdown
 from reportlab.lib.pagesizes import letter
@@ -15,16 +12,43 @@ from reportlab.lib.styles import getSampleStyleSheet
 from pathlib import Path
 import io
 
+def get_audio_devices():
+    """Get list of available audio input devices"""
+    try:
+        devices = sd.query_devices()
+        input_devices = []
+        for i, device in enumerate(devices):
+            if device['max_input_channels'] > 0:
+                input_devices.append((i, device['name']))
+        return input_devices
+    except Exception as e:
+        return []
 
-def record_audio(duration, sample_rate=44100):
+def record_audio(duration, sample_rate=44100, device=None):
     """Record audio for specified duration"""
-    recording = sd.rec(
-        int(duration * sample_rate),
-        samplerate=sample_rate,
-        channels=1
-    )
-    sd.wait()
-    return recording
+    try:
+        # Initialize audio device
+        if device is not None:
+            sd.default.device[0] = device  # Set input device
+        
+        # Test audio device before recording
+        sd.check_input_settings(
+            device=device,
+            channels=1,
+            samplerate=sample_rate
+        )
+        
+        # Record audio
+        recording = sd.rec(
+            int(duration * sample_rate),
+            samplerate=sample_rate,
+            channels=1,
+            device=device
+        )
+        sd.wait()
+        return recording, None
+    except Exception as e:
+        return None, str(e)
 
 def save_audio(recording, filename, sample_rate=44100):
     """Save the recorded audio to a WAV file"""
@@ -141,22 +165,43 @@ def main():
     option = st.radio("Choose input method:", ["Record Audio", "Upload Audio File"])
     
     if option == "Record Audio":
+        # Get available input devices
+        input_devices = get_audio_devices()
+        
+        if not input_devices:
+            st.error("No audio input devices found. Please check your microphone connection.")
+            return
+        
+        # Device selection dropdown
+        device_names = ["Default Device"] + [f"{name} (Device {idx})" for idx, name in input_devices]
+        selected_device = st.selectbox("Select Audio Input Device:", device_names)
+        
+        # Get device index from selection
+        if selected_device != "Default Device":
+            device_idx = input_devices[device_names.index(selected_device) - 1][0]
+        else:
+            device_idx = None
+        
         duration = st.number_input("Recording duration (seconds)", min_value=1, value=5)
+        
         if st.button("Start Recording"):
             with st.spinner("Recording..."):
                 try:
-                    recording = record_audio(duration)
-                    st.success("Recording completed!")
-                    
-                    # Save recording to temporary file
-                    temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
-                    save_audio(recording, temp_audio.name)
-                    
-                    # Store file path in session state
-                    st.session_state['audio_file'] = temp_audio.name
-                    
-                    # Display audio player
-                    st.audio(temp_audio.name)
+                    recording, error = record_audio(duration, device=device_idx)
+                    if error:
+                        st.error(f"Error recording audio: {error}")
+                    else:
+                        st.success("Recording completed!")
+                        
+                        # Save recording to temporary file
+                        temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
+                        save_audio(recording, temp_audio.name)
+                        
+                        # Store file path in session state
+                        st.session_state['audio_file'] = temp_audio.name
+                        
+                        # Display audio player
+                        st.audio(temp_audio.name)
                 except Exception as e:
                     st.error(f"Error recording audio: {str(e)}")
     
