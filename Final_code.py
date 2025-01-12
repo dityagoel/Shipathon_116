@@ -127,6 +127,7 @@ def main():
     ## Say it loud, See it written! :wink:
     '''
     st.write(Markdown)
+    st.write("Crafted with :blub: by Shreya Khandelwal, Ditya Goel, Mridunja Raman, Riddhi Motwani and Preksha."
 
     # Sidebar for API key
     api_key = st.sidebar.text_input("Enter Groq API Key", type="password")
