@@ -170,14 +170,14 @@ def main():
     
     if option == "Record Audio":
         # Call the audio recorder
-        audio_data = st_audiorec()
-        st.session_state.audio_file = audio_data
+        audio_file = st_audiorec()
+
 
         # Display audio data
-        if audio_data is not None:
-            st.audio(audio_data, format="audio/wav")
+        if audio_file is not None:
+            st.audio(audio_file, format="audio/wav")
             with open("output.wav", "wb") as f:
-                f.write(audio_data)
+                f.write(audio_file)
             st.success("Audio saved!")
         # Transcription and Notes Generation
         if 'audio_file' in st.session_state and st.button("Generate Notes"):
