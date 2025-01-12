@@ -27,8 +27,6 @@ def get_audio_devices():
     except Exception as e:
         return []
 
-
-
 def transcribe_text(file_path, client):
     """Transcribe audio file to text using Groq"""
     try:
@@ -151,11 +149,19 @@ def main():
     if option == "Record Audio":
         # Call the audio recorder
         audio_data = st_audiorec()
-        st.session_state['audio_file']=audio_data
-
-        # Display audio data
+        
+        # If audio_data is not None, save it as a temporary .wav file
         if audio_data is not None:
-            st.audio(audio_data, format="audio/wav")
+            # Create a temporary file to save the audio data
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_file:
+                temp_file.write(audio_data)
+                audio_file_path = temp_file.name  # Get the file path of the saved audio
+                
+                # Display audio data
+                st.audio(audio_file_path, format="audio/wav")
+                
+                # Store the file path in session_state for later processing
+                st.session_state['audio_file'] = audio_file_path
 
         # Transcription and Notes Generation
         if 'audio_file' in st.session_state and st.button("Generate Notes"):
