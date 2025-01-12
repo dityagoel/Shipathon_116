@@ -179,14 +179,17 @@ def main():
     
     if option == "Record Audio":
         # Call the audio recorder
-        audio_file = st_audiorec()
+        audio_data = st_audiorec()
 
         # Display audio data
-        if audio_file is not None:
-            st.audio(audio_file, format="audio/wav")
-            with open("output.wav", "wb") as f:
-                f.write(audio_file)
-            st.success("Audio saved as 'output.wav'")
+        if audio_data is not None:
+            st.audio(audio_data, format="audio/wav")
+
+        # Display audio data
+    if audio_data is not None:
+        with open("output.wav", "wb") as f:
+            f.write(audio_data)
+        st.success("Audio saved as output.wav")
 
     else:  # Upload Audio File
         uploaded_file = st.file_uploader("Choose an audio file", type=['wav'])
