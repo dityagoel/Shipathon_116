@@ -180,10 +180,15 @@ def main():
     option = st.radio("Choose input method:", ["Record Audio", "Upload Audio File"])
     
     if option == "Record Audio":
-        wav_audio_data = st_audiorec()
+        # Call the audio recorder
+        audio_data = st_audiorec()
 
-    if wav_audio_data is not None:
-        st.audio(wav_audio_data, format='audio/wav')
+        # Display audio data
+        if audio_data is not None:
+            st.audio(audio_data, format="audio/wav")
+            with open("output.wav", "wb") as f:
+                f.write(audio_data)
+            st.success("Audio saved as output.wav")
     
     else:  # Upload Audio File
         uploaded_file = st.file_uploader("Choose an audio file", type=['wav'])
