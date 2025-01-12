@@ -1,11 +1,10 @@
 import streamlit as st
-
+import os
 os.system('pip install sounddevice --force-reinstall')
 import sounddevice as sd
 from scipy.io.wavfile import write
 import numpy as np
 from groq import Groq
-import os
 import tempfile
 import markdown
 from reportlab.lib.pagesizes import letter
