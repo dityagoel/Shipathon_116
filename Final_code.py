@@ -13,7 +13,7 @@ import io
 from st_audiorec import st_audiorec
 
 # Ensure the necessary packages are installed
-# os.system('pip install streamlit-audiorec')
+os.system('pip install streamlit-audiorec')
 
 def get_audio_devices():
     """Get list of available audio input devices"""
