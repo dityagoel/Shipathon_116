@@ -7,3 +7,4 @@ markdown
 reportlab
 pathlib
 streamlit-webrtc
+wave
