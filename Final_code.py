@@ -11,6 +11,21 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from pathlib import Path
 import io
+from streamlit_webrtc import webrtc_streamer, AudioProcessorBase
+import wave
+
+# Global variable to store audio data
+audio_data_buffer = []
+
+class AudioProcessor(AudioProcessorBase):
+    def recv_audio(self, frame):
+        global audio_data_buffer
+        
+        # Convert the audio frame to numpy array
+        audio = frame.to_ndarray()  # Raw audio data as a NumPy array
+        audio_data_buffer.append(audio)  # Append to the global buffer
+
+        return frame  # Return the original frame (unprocessed)
 os.system('pip install streamlit-webrtc opencv-python')
 
 def get_audio_devices():
@@ -166,45 +181,28 @@ def main():
     option = st.radio("Choose input method:", ["Record Audio", "Upload Audio File"])
     
     if option == "Record Audio":
-        # Get available input devices
-        input_devices = get_audio_devices()
+        # Start the WebRTC streamer
+        webrtc_ctx = webrtc_streamer(
+            key="audio",
+            mode="sendonly",
+            audio_processor_factory=AudioProcessor
+        )
         
-        if not input_devices:
-            st.error("No audio input devices found. Please check your microphone connection.")
-            return
+        # Display the length of audio frames collected
+        if st.button("Stop and Save Audio"):
+            if len(audio_data_buffer) > 0:
+                # Combine all collected audio frames
+                audio_data = np.concatenate(audio_data_buffer, axis=0)
         
-        # Device selection dropdown
-        device_names = ["Default Device"] + [f"{name} (Device {idx})" for idx, name in input_devices]
-        selected_device = st.selectbox("Select Audio Input Device:", device_names)
+                # Save audio to a .wav file
+                output_file = "output.wav"
+                with wave.open(output_file, "wb") as wf:
+                    wf.setnchannels(1)  # Mono audio
+                    wf.setsampwidth(2)  # 16-bit audio
+                    wf.setframerate(48000)  # Assuming a sample rate of 48kHz
+                    wf.writeframes(audio_data.tobytes())
         
-        # Get device index from selection
-        if selected_device != "Default Device":
-            device_idx = input_devices[device_names.index(selected_device) - 1][0]
-        else:
-            device_idx = None
-        
-        duration = st.number_input("Recording duration (seconds)", min_value=1, value=5)
-        
-        if st.button("Start Recording"):
-            with st.spinner("Recording..."):
-                try:
-                    recording, error = record_audio(duration, device=device_idx)
-                    if error:
-                        st.error(f"Error recording audio: {error}")
-                    else:
-                        st.success("Recording completed!")
-                        
-                        # Save recording to temporary file
-                        temp_audio = tempfile.NamedTemporaryFile(delete=False, suffix='.wav')
-                        save_audio(recording, temp_audio.name)
-                        
-                        # Store file path in session state
-                        st.session_state['audio_file'] = temp_audio.name
-                        
-                        # Display audio player
-                        st.audio(temp_audio.name)
-                except Exception as e:
-                    st.error(f"Error recording audio: {str(e)}")
+                st.success(f"Audio saved as {output_file}")
     
     else:  # Upload Audio File
         uploaded_file = st.file_uploader("Choose an audio file", type=['wav'])
